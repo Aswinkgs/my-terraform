@@ -4,15 +4,16 @@ resource "aws_instance" "Myapp"{
     key_name = "devops-project"
     security_groups = [aws_security_group.my_sg.name]
 
-    user_data = <<-EOF
+user_data = <<-EOF
               #!/bin/bash
-              # Update system
+              export DEBIAN_FRONTEND=noninteractive
               sudo apt-get update -y
 
               # Install Docker
               sudo apt-get install -y docker.io
               sudo systemctl start docker
               sudo systemctl enable docker
+              sudo usermod -aG docker ubuntu
 
               # Install Jenkins
               sudo apt-get install -y openjdk-11-jdk
@@ -20,11 +21,11 @@ resource "aws_instance" "Myapp"{
               sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
               sudo apt-get update -y
               sudo apt-get install -y jenkins
-
-              # Start Jenkins
               sudo systemctl start jenkins
               sudo systemctl enable jenkins
               EOF
+
+
     tags = {
         Name = "Myproject_app"
     }
