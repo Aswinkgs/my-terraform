@@ -1,7 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "${HOME}/bin:${PATH}"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -10,12 +15,38 @@ pipeline {
             }
         }
 
+        stage('Install Terraform') {
+            steps {
+                sh '''
+                    mkdir -p $HOME/bin
+
+                    if ! command -v terraform >/dev/null 2>&1; then
+                        echo "Installing Terraform..."
+
+                        cd /tmp
+
+                        curl -LO https://releases.hashicorp.com/terraform/1.13.3/terraform_1.13.3_linux_amd64.zip
+
+                        unzip -o terraform_1.13.3_linux_amd64.zip
+
+                        mv terraform $HOME/bin/terraform
+
+                        chmod +x $HOME/bin/terraform
+
+                        rm -f terraform_1.13.3_linux_amd64.zip
+                    fi
+
+                    terraform version
+                '''
+            }
+        }
+
         stage('Terraform Provision') {
             steps {
                 dir('terraform') {
                     sh '''
-                    terraform init
-                    terraform apply -auto-approve
+                        terraform init
+                        terraform apply -auto-approve
                     '''
                 }
             }
@@ -25,7 +56,7 @@ pipeline {
             steps {
                 dir('Docker') {
                     sh '''
-                    docker build -t myflaskapp:latest .
+                        docker build -t myflaskapp:latest .
                     '''
                 }
             }
@@ -34,9 +65,9 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 sh '''
-                docker stop myapp || true
-                docker rm myapp || true
-                docker run -d -p 5000:5000 --name myapp myflaskapp:latest
+                    docker stop myapp || true
+                    docker rm myapp || true
+                    docker run -d -p 5000:5000 --name myapp myflaskapp:latest
                 '''
             }
         }
@@ -45,7 +76,7 @@ pipeline {
             steps {
                 dir('ansible') {
                     sh '''
-                    ansible-playbook -i hosts.ini setup-playbook.yml
+                        ansible-playbook -i hosts.ini setup-playbook.yml
                     '''
                 }
             }
