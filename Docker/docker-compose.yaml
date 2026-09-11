@@ -1,0 +1,8 @@
+services:
+
+  app:
+    build: .
+    container_name: proj-app
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
