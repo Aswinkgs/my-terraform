@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'git@github.com:Aswinkgs/project-sample.git',
+                    url: 'git@github.com:Aswinkgs/my-terraform.git',
                     credentialsId: 'github-ssh-key'
             }
         }
