@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     return f"""
-    <p>Application deployed!</p>
+    <p>Application has been deployed deployed!</p>
     <p>Hostname: {socket.gethostname()}</p>
     """
 
